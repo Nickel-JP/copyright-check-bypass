@@ -95,8 +95,17 @@ def main():
         "url": LISTING_URL,
         "packages": {},
     }
-    entry = dict(manifest, zipSHA256=digest)
+    public_asset = ROOT / "docs/packages" / zip_name
+    public_url = LISTING_URL.rsplit("/", 1)[0] + "/packages/" + zip_name
+    entry = dict(manifest, url=public_url, zipSHA256=digest)
     if args.write_index:
+        previous = listing["packages"].get(PACKAGE_ID, {}).get("versions", {}).get(version)
+        if previous and previous.get("zipSHA256") != digest:
+            raise ValueError("既存バージョンのZIPは変更できません。バージョンを更新してください。")
+        if public_asset.exists() and hashlib.sha256(public_asset.read_bytes()).hexdigest() != digest:
+            raise ValueError("公開済みの同じ名前のZIPとは内容が異なります。")
+        public_asset.parent.mkdir(parents=True, exist_ok=True)
+        public_asset.write_bytes(archive.read_bytes())
         listing["packages"].setdefault(PACKAGE_ID, {"versions": {}})["versions"][version] = entry
         listing_path.write_text(json.dumps(listing, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     else:
@@ -104,13 +113,16 @@ def main():
             raise ValueError("リポジトリのURLまたはIDが一致しません。")
         if listing["packages"][PACKAGE_ID]["versions"][version] != entry:
             raise ValueError("公開用JSONとZIPが一致しません。--write-indexで更新してください。")
+        if not public_asset.is_file() or hashlib.sha256(public_asset.read_bytes()).hexdigest() != digest:
+            raise ValueError("GitHub Pages配信用のZIPが欠落、または内容が一致しません。")
     with zipfile.ZipFile(archive) as output:
         if output.testzip() is not None or "package.json" not in output.namelist():
             raise ValueError("ZIPの形式が不正です。")
         if read_json(ROOT / "package.json") != json.loads(output.read("package.json")):
             raise ValueError("ZIP内のmanifestが一致しません。")
     print(json.dumps({"archive": str(archive), "sha256": digest, "version": version,
-                      "files": len(package_files()), "listing": LISTING_URL}, ensure_ascii=False))
+                      "files": len(package_files()), "listing": LISTING_URL,
+                      "download": public_url}, ensure_ascii=False))
 
 
 if __name__ == "__main__":
