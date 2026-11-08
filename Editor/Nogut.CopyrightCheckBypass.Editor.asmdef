@@ -1,0 +1,14 @@
+{
+  "name": "Nogut.CopyrightCheckBypass.Editor",
+  "rootNamespace": "Nogut.VRCCopyrightAgreementAutoAccept",
+  "references": [],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
