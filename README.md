@@ -59,7 +59,7 @@ Unity 2022.3.22f1の参照DLLと標準ライブラリだけでコンパイルし
 模擬SDK・実際のHarmony 2.0.5を使ったWindows .NET Framework上の
 9シナリオ・52アサーションも確認しています。
 
-今回のVPM配布版をUnity Editor内で使ったBuild & Publishと、実際のSDK通信は未検証です。
+今回のVPM配布版をUnity Editor内で使ったBuild & Publishと、実際のSDK処理でVRChatへのアップロード成功を確認しました。また、サーバーによる処理拒否は発生していません。
 
 ## 配布ファイルの生成
 
